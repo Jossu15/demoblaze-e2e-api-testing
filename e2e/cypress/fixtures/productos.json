@@ -1,0 +1,27 @@
+{
+  "producto1": {
+    "indice": 0,
+    "categoria": "phone"
+  },
+  "producto2": {
+    "indice": 1,
+    "categoria": "notebook"
+  },
+  "compra": {
+    "nombres": "Juan Carlos",
+    "apellidos": "Perez Rodriguez",
+    "nombreCompleto": "Juan Carlos Perez Rodriguez",
+    "direccion": "Av. Principal 123",
+    "distrito": "Miraflores",
+    "provincia": "Lima",
+    "departamento": "Lima",
+    "pais": "Peru",
+    "ciudad": "Lima",
+    "numeroTarjeta": "1234567890123456",
+    "fechaCaducidad": "12/26",
+    "mes": "12",
+    "anio": "2026",
+    "cvc": "123",
+    "titularTarjeta": "Juan Carlos Perez Rodriguez"
+  }
+}

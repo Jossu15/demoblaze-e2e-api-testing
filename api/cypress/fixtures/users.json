@@ -1,0 +1,18 @@
+{
+  "nuevoUsuario": {
+    "username": "testuser_api_2026",
+    "password": "Password123!"
+  },
+  "usuarioExistente": {
+    "username": "testuser_api_2026",
+    "password": "Password123!"
+  },
+  "loginCorrecto": {
+    "username": "testuser_api_2026",
+    "password": "Password123!"
+  },
+  "loginIncorrecto": {
+    "username": "testuser_api_2026",
+    "password": "WrongPassword999!"
+  }
+}

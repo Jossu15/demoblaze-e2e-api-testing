@@ -1,0 +1,151 @@
+============================================================
+  CONCLUSIONES Y HALLAZGOS
+  Prueba E2E - Flujo de Compra en Demoblaze.com
+  Framework: Cypress.io
+============================================================
+
+1. RESUMEN DE RESULTADOS
+-------------------------
+- La prueba E2E del flujo completo de compra se ejecuto exitosamente.
+- Se validaron los 4 pasos requeridos: agregar productos, visualizar carrito,
+  completar formulario y finalizar compra.
+- Tiempo promedio de ejecucion: ~14 segundos.
+- Resultado: 1 test passing, 0 failing.
+
+2. HALLAZGOS TECNICOS
+----------------------
+
+2.1 Manejo de alertas nativas del navegador
+   - Demoblaze.com utiliza alertas nativas del navegador (window.alert)
+     para confirmar la accion "Add to cart" con el mensaje "Product added".
+   - Cypress por defecto falla cuando encuentra una alerta nativa no manejada.
+   - Solucion: Se registro el evento cy.once('window:alert') ANTES de
+     ejecutar la accion que dispara la alerta, permitiendo capturarla
+     y validar su contenido sin interrumpir la ejecucion.
+   - Se uso cy.once() en lugar de cy.on() para evitar capturar alertas
+     de otras acciones (como validaciones del formulario).
+
+2.2 Navegacion entre paginas
+   - El sitio utiliza navegacion multi-pagina tradicional (no SPA):
+     index.html -> prod.html?idp_=X -> cart.html
+   - La funcion cy.go('back') del navegador no funciono de manera
+     confiable para regresar desde prod.html a index.html.
+   - Solucion: Se utilizo cy.visit('/') para navegar directamente
+     al home, garantizando estabilidad en la prueba.
+
+2.3 Carga dinamica de productos
+   - Los productos en la pagina principal se cargan de forma dinamica
+     mediante llamadas AJAX al cargar la pagina.
+   - Se utilizaron aserciones de Cypress (should) con reintentos
+     automaticos para esperar la carga completa antes de interactuar.
+
+2.4 Icono de carrito en navbar
+   - El sitio tiene un enlace "Cart" en el navbar (parte superior derecha)
+     que permite acceder al carrito desde cualquier pagina.
+   - Este enlace tiene el id "cartur" y redirige a cart.html.
+
+2.5 Botones de "Add to cart" en cada producto
+   - Cada producto en la pagina principal tiene un enlace que lleva
+     a la pagina de detalle del producto.
+   - En la pagina de detalle, hay un boton "Add to cart" que agrega
+     el producto al carrito.
+
+2.6 Modal de orden (Place Order)
+   - El formulario de compra se presenta en un modal de Bootstrap
+     (#orderModal) que se activa al hacer clic en "Place Order".
+   - Los campos del formulario incluyen:
+     * Name (nombre completo del comprador)
+     * Country (pais)
+     * City (ciudad)
+     * Credit Card (numero de tarjeta)
+     * Month (mes de caducidad)
+     * Year (anio de caducidad)
+
+2.7 Confirmacion de compra con SweetAlert
+   - La confirmacion final de compra utiliza la libreria SweetAlert
+     (no un modal estandar de Bootstrap).
+   - El mensaje "Thank you for your purchase!" se muestra en un
+     elemento con clase .sweet-alert / .lead.
+   - Se verifico la presencia del texto de confirmacion como
+     asercion final del flujo.
+
+3. HALLAZGOS FUNCIONALES
+-------------------------
+
+3.1 Carrito sin persistencia
+   - El carrito de compras no persiste entre sesiones ni requiere
+     login. Los productos se almacenan en la sesion del navegador.
+   - Esto facilita la automatizacion ya que no es necesario
+     autenticarse para completar un flujo de compra.
+
+3.2 Validacion del total
+   - El carrito calcula automaticamente el total de los productos
+     agregados y lo muestra en el elemento #totalp.
+   - Se verifico que el total no sea vacio ni cero despues de
+     agregar dos productos.
+
+3.3 Datos de prueba completos
+   - Se utilizaron fixtures (productos.json) para separar los datos
+     de prueba del codigo del test, facilitando el mantenimiento
+     y la reutilizacion.
+   - Los datos incluyen informacion completa:
+     * Datos personales: nombres, apellidos, nombre completo
+     * Direccion: direccion, distrito, provincia, departamento, pais, ciudad
+     * Pago: numero de tarjeta, fecha de caducidad, mes, anio, CVC, titular
+   - Aunque demoblaze.com solo usa campos basicos, se registraron
+     todos los datos adicionales para referencia y documentacion.
+
+3.4 Limitaciones del formulario de demoblaze.com
+   - El sitio solo solicita campos basicos: Name, Country, City, 
+     Credit Card, Month, Year
+   - No solicita campos adicionales como:
+     * Apellidos (separados de nombres)
+     * Direccion de entrega especifica
+     * Distrito, Provincia, Departamento
+     * CVC de la tarjeta
+     * Nombre del titular de la tarjeta
+   - Estos datos adicionales se registraron en fixtures para
+     documentacion y posibles futuras implementaciones.
+
+4. VENTAJAS DE CYPRESS PARA ESTE EJERCICIO
+-------------------------------------------
+- Configuracion minima: solo se requirio instalar Cypress y crear
+  un archivo de configuracion basico.
+- Reintentos automaticos: los comandos de Cypress reintentan
+  automaticamente hasta que la asercion se cumple o se agota
+  el timeout, eliminando la necesidad de waits explicitos.
+- Video y screenshots: Cypress genera automaticamente un video
+  de la ejecucion y screenshots en caso de fallo.
+- Comandos personalizados: se crearon custom commands para
+  encapsular acciones repetitivas (agregar producto, ir al
+  carrito, completar formulario, finalizar compra).
+- Navegacion multi-pagina nativa: Cypress soporta navegacion
+  entre paginas sin configuracion adicional.
+
+5. LIMITACIONES Y MEJORAS POTENCIALES
+---------------------------------------
+- No se probaron flujos de error (campos vacios, tarjeta invalida).
+- No se realizo login previo a la compra.
+- No se probaron diferentes categorias de productos (Phones, Laptops, Monitors).
+- Se podrian agregar mas aserciones: verificar precios individuales,
+  eliminar productos del carrito, cambiar cantidades.
+- Se podria integrar con un sistema de CI/CD (GitHub Actions, Jenkins)
+  para ejecucion automatica en cada commit.
+- Se podrian agregar reportes avanzados con cypress-mochawesome-reporter
+  para documentacion mas detallada.
+
+6. CONCLUSION GENERAL
+-----------------------
+Cypress.io resulto ser una excelente eleccion para automatizar el flujo
+de compra en demoblaze.com. Su enfoque moderno, la facilidad de
+configuracion y las herramientas integradas (video, screenshots,
+reintentos) permitieron crear una prueba E2E robusta y mantenible
+en poco tiempo. El flujo completo de compra (agregar productos,
+visualizar carrito, completar formulario y confirmar compra) se
+automatizo exitosamente, validando la funcionalidad core del
+sitio de comercio electronico.
+
+Los datos de prueba incluyen informacion completa (nombres, apellidos,
+direccion, distrito, provincia, departamento, CVC, titular) aunque
+el sitio solo utiliza campos basicos, lo que permite documentar
+un escenario de prueba mas completo y realista.
